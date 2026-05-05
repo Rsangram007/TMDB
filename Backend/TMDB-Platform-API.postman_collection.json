@@ -1,0 +1,409 @@
+{
+	"info": {
+		"_postman_id": "tmdb-platform-api",
+		"name": "TMDB Platform API",
+		"description": "Complete API collection for TMDB Platform Backend - Authentication, Movies, and User Management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"event": [
+							{
+								"listen": "test",
+								"script": {
+									"exec": [
+										"if (pm.response.code === 200) {",
+										"    const response = pm.response.json();",
+										"    pm.environment.set('token', response.token);",
+										"    pm.environment.set('userId', response.user.id);",
+										"    pm.environment.set('username', response.user.username);",
+										"}"
+									],
+									"type": "text/javascript"
+								}
+							}
+						]
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "me"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TMDB Movies",
+			"item": [
+				{
+					"name": "Get Popular Movies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/movies/popular?page=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "movies", "popular"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Movie Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/movies/550",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "movies", "550"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Movies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/search/movies?query=avengers&page=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "search", "movies"],
+							"query": [
+								{
+									"key": "query",
+									"value": "avengers",
+									"description": "Search query for movies"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trending Movies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/trending/movies?time_window=day",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "trending", "movies"],
+							"query": [
+								{
+									"key": "time_window",
+									"value": "day",
+									"description": "Time window: day or week"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Movie Genres",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/genres/movie",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "genres", "movie"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Movies by Genre",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/movies/genre/28?page=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "movies", "genre", "28"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Add to Favorites",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"movieId\": 550\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/favorites",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "favorites"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove from Favorites",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/favorites/550",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "favorites", "550"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add to Watchlist",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"movieId\": 550\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/watchlist",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "watchlist"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove from Watchlist",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/watchlist/550",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "watchlist", "550"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Favorites",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/favorites",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "favorites"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Watchlist",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/watchlist",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "watchlist"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"updated_username\",\n  \"avatar\": \"https://example.com/avatar.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "profile"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Server",
+			"item": [
+				{
+					"name": "Server Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": ["{{baseUrl}}"],
+							"path": [""]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+}
