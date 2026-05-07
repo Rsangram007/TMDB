@@ -1,40 +1,52 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
+const axios = require('axios');
 const User = require('../models/User');
 const Movie = require('../models/Movie');
+const { verifyToken } = require('../middleware/auth');
 const router = express.Router();
 
-// Middleware to verify JWT token
-const verifyToken = async (req, res, next) => {
-  try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+// TMDB config (synced with tmdb.js)
+const TMDB_API_KEY = process.env.TMDB_BEARER || process.env.TMDB_API_KEY;
+const TMDB_BASE_URL = process.env.TMDB_BASE || process.env.TMDB_BASE_URL || 'https://api.themoviedb.org/3';
+const FALLBACK_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMjFhNmIzYWQ1MmJjOTNhZmY1ZmY3ODEyOWI5ZjViNiIsIm5iZiI6MTc1NDEyNTg1Ny44NzksInN1YiI6IjY4OGRkNjIxOWIwMTVjMDk1OWRlNjRlNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.5KZmXJL8e5Znn-t2udettH4bS95MHWgPWYW67They5g';
+const TMDB_TOKEN = TMDB_API_KEY || FALLBACK_TOKEN;
 
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access token required'
-      });
-    }
+// Fetch movie from TMDB and save to local DB if missing
+const findOrCreateMovie = async (tmdbId) => {
+  let movie = await Movie.findOne({ tmdbId });
+  if (movie) return movie;
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    console.error('Token verification error:', error);
-    res.status(401).json({
-      success: false,
-      message: 'Invalid token'
-    });
+  if (!TMDB_TOKEN) {
+    throw new Error('TMDB_API_KEY not configured');
   }
+
+  const { data } = await axios.get(`${TMDB_BASE_URL}/movie/${tmdbId}`, {
+    headers: {
+      'Authorization': `Bearer ${TMDB_TOKEN}`,
+      'accept': 'application/json'
+    }
+  });
+
+  movie = await Movie.findOneAndUpdate(
+    { tmdbId: data.id },
+    {
+      tmdbId: data.id,
+      title: data.title,
+      overview: data.overview,
+      posterPath: data.poster_path,
+      backdropPath: data.backdrop_path,
+      releaseDate: data.release_date ? new Date(data.release_date) : null,
+      genres: data.genres?.map(g => g.name) || [],
+      voteAverage: data.vote_average,
+      voteCount: data.vote_count,
+      popularity: data.popularity,
+      adult: data.adult,
+      originalLanguage: data.original_language
+    },
+    { upsert: true, new: true }
+  );
+
+  return movie;
 };
 
 // Add movie to favorites
@@ -49,14 +61,7 @@ router.post('/favorites', verifyToken, async (req, res) => {
       });
     }
 
-    // Check if movie exists in our database
-    const movie = await Movie.findOne({ tmdbId: movieId });
-    if (!movie) {
-      return res.status(404).json({
-        success: false,
-        message: 'Movie not found'
-      });
-    }
+    const movie = await findOrCreateMovie(movieId);
 
     // Check if already in favorites
     if (req.user.favorites.includes(movie._id)) {
@@ -90,14 +95,8 @@ router.delete('/favorites/:movieId', verifyToken, async (req, res) => {
   try {
     const { movieId } = req.params;
 
-    // Find movie by TMDB ID
-    const movie = await Movie.findOne({ tmdbId: movieId });
-    if (!movie) {
-      return res.status(404).json({
-        success: false,
-        message: 'Movie not found'
-      });
-    }
+    // Find movie by TMDB ID (fetch from TMDB if missing so we have its _id)
+    const movie = await findOrCreateMovie(movieId);
 
     // Remove from favorites
     req.user.favorites = req.user.favorites.filter(
@@ -132,14 +131,7 @@ router.post('/watchlist', verifyToken, async (req, res) => {
       });
     }
 
-    // Check if movie exists in our database
-    const movie = await Movie.findOne({ tmdbId: movieId });
-    if (!movie) {
-      return res.status(404).json({
-        success: false,
-        message: 'Movie not found'
-      });
-    }
+    const movie = await findOrCreateMovie(movieId);
 
     // Check if already in watchlist
     if (req.user.watchlist.includes(movie._id)) {
@@ -173,14 +165,8 @@ router.delete('/watchlist/:movieId', verifyToken, async (req, res) => {
   try {
     const { movieId } = req.params;
 
-    // Find movie by TMDB ID
-    const movie = await Movie.findOne({ tmdbId: movieId });
-    if (!movie) {
-      return res.status(404).json({
-        success: false,
-        message: 'Movie not found'
-      });
-    }
+    // Find movie by TMDB ID (fetch from TMDB if missing so we have its _id)
+    const movie = await findOrCreateMovie(movieId);
 
     // Remove from watchlist
     req.user.watchlist = req.user.watchlist.filter(
@@ -273,3 +259,4 @@ router.put('/profile', verifyToken, async (req, res) => {
 });
 
 module.exports = router;
+ 

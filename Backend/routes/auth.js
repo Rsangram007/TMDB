@@ -1,7 +1,11 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { verifyToken } = require('../middleware/auth');
 const router = express.Router();
+
+// Simple in-memory token blacklist (use Redis in production)
+const tokenBlacklist = new Set();
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -98,27 +102,9 @@ router.post('/login', async (req, res) => {
 });
 
 // Get current user (protected route)
-router.get('/me', async (req, res) => {
+router.get('/me', verifyToken, async (req, res) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access token required'
-      });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
+    const user = req.user;
     res.status(200).json({
       success: true,
       user: {
@@ -132,11 +118,33 @@ router.get('/me', async (req, res) => {
     });
   } catch (error) {
     console.error('Get user error:', error);
-    res.status(401).json({
+    res.status(500).json({
       success: false,
-      message: 'Invalid token'
+      message: 'Failed to get user profile'
     });
   }
 });
 
+// Logout user
+router.post('/logout', verifyToken, async (req, res) => {
+  try {
+    const token = req.token;
+    tokenBlacklist.add(token);
+    res.status(200).json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Logout failed'
+    });
+  }
+});
+
+// Check if token is blacklisted (helper)
+router.isTokenBlacklisted = (token) => tokenBlacklist.has(token);
+
 module.exports = router;
+

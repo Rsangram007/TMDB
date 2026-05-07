@@ -64,16 +64,23 @@ TMDB/
 | POST | `/register` | Create new account |
 | POST | `/login` | Login and get JWT token |
 | GET | `/me` | Get current user (protected) |
+| POST | `/logout` | Logout user and invalidate token (protected) |
 
 ### TMDB (`/api/tmdb`)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/movies/popular` | Get popular movies |
 | GET | `/movies/:id` | Get movie details + save to DB |
+| GET | `/movies/:id/credits` | Get movie cast and crew |
+| GET | `/movies/:id/videos` | Get movie trailers and clips |
+| GET | `/movies/:id/recommendations` | Get similar/recommended movies |
 | GET | `/search/movies` | Search movies by query |
 | GET | `/trending/movies` | Get trending movies |
 | GET | `/genres/movie` | Get all movie genres |
 | GET | `/movies/genre/:genreId` | Get movies by genre |
+| GET | `/movies/top_rated` | Get top rated movies |
+| GET | `/movies/upcoming` | Get upcoming movies |
+| GET | `/movies/now_playing` | Get now playing movies |
 | GET | `/people/popular` | Get popular actors |
 
 ### User (`/api/user` — requires JWT)
@@ -86,6 +93,15 @@ TMDB/
 | GET | `/favorites` | Get user's favorites |
 | GET | `/watchlist` | Get user's watchlist |
 | PUT | `/profile` | Update profile |
+
+### Common Query Parameters
+| Parameter | Example | Used On |
+|-----------|---------|---------|
+| `page` | `1` | `/movies/popular`, `/search/movies`, `/trending/movies`, `/movies/genre/:id`, `/movies/top_rated`, `/movies/upcoming`, `/movies/now_playing`, `/people/popular` |
+| `language` | `en-US` | All TMDB movie endpoints |
+| `query` | `avengers` | `/search/movies` (required) |
+| `time_window` | `day` / `week` | `/trending/movies` |
+| `sort_by` | `popularity.desc` | `/movies/genre/:genreId` |
 
 ## Getting Started
 
@@ -132,6 +148,19 @@ npm run dev             # Starts on http://localhost:5173
 ## Postman Collection
 
 Import `Backend/TMDB-Platform-API.postman_collection.json` into Postman for testing all endpoints.
+
+**Environment Variables:**
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `baseUrl` | `http://localhost:5000` | Backend server URL |
+| `token` | *(auto-set after login)* | JWT Bearer token for protected routes |
+| `userId` | *(auto-set after login)* | Logged-in user ID |
+
+**How to use:**
+1. Import the collection into Postman
+2. Set the `baseUrl` environment variable to your server URL (e.g. `http://localhost:5000`)
+3. Run **Register** or **Login** first — the collection auto-saves the `token` from the response
+4. Use any protected endpoint (marked with 🔒) — it automatically uses `Bearer {{token}}`
 
 ## Scripts
 

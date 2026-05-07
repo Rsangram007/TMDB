@@ -86,6 +86,24 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Logout User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "logout"]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -192,6 +210,132 @@
 							"raw": "{{baseUrl}}/api/tmdb/movies/genre/28?page=1",
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "tmdb", "movies", "genre", "28"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Movie Credits",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/movies/550/credits",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "movies", "550", "credits"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Movie Videos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/movies/550/videos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "movies", "550", "videos"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Movie Recommendations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/movies/550/recommendations?page=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "movies", "550", "recommendations"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Top Rated Movies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/movies/top_rated?page=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "movies", "top_rated"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Upcoming Movies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/movies/upcoming?page=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "movies", "upcoming"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Now Playing Movies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/movies/now_playing?page=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "movies", "now_playing"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Popular People",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tmdb/people/popular?page=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "tmdb", "people", "popular"],
 							"query": [
 								{
 									"key": "page",
